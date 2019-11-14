@@ -1,0 +1,56 @@
+- hosts: all
+  become: yes
+  user: opc
+  vars_prompt:
+    - name: "public_key_path"
+      prompt: "public key path:"
+      private: no
+  vars:
+    ansible_ssh_user: opc
+  tasks:
+    - name: ロケールを日本に設定
+      command: localectl set-locale LANG=ja_JP.utf8
+  tasks:
+    - name: MQTTのインストール
+      yum: name=mosquitto
+
+  handlers:
+    - name: Restart sshd
+      action: service name=sshd state=restarted
+
+
+- hosts: terraform-MQTT-sub
+  become: yes
+  user: opc
+  vars_prompt:
+    - name: "public_key_path"
+      prompt: "public key path:"
+      private: no
+  vars:
+    ansible_ssh_user: opc
+
+  tasks:
+    - name: MQTTClientのインストール
+      yum: name=mosquitto-clients
+
+  handlers:
+    - name: Restart sshd
+      action: service name=sshd state=restarted
+      # ファイアーウォールでのポート開放
+
+
+- hosts: terraform-brocker
+  become: yes
+  user: opc
+  vars_prompt:
+    - name: "public_key_path"
+      prompt: "public key path:"
+      private: no
+  vars:
+    ansible_ssh_user: opc
+  tasks:
+    - name: slコマンドのyumインストール4
+      yum: name=sl
+  handlers:
+    - name: Restart sshd
+      action: service name=sshd state=restarted
